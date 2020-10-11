@@ -1,0 +1,5 @@
+ASLang = {}
+
+ASLang.msg = {
+
+}
