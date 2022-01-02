@@ -1,13 +1,12 @@
 -- Helper
 local OFMGR = ZO_OUTFIT_MANAGER
 local ZOSF = zo_strformat
-
+local MSG = ASLang.msg
 
 -- locals
 local categories = {
-	COLLECTIBLE_CATEGORY_TYPE_VANITY_PET,           -- 3
+    -- appearance
 	COLLECTIBLE_CATEGORY_TYPE_COSTUME,              -- 4
-	COLLECTIBLE_CATEGORY_TYPE_MOUNT,                -- 2
 	COLLECTIBLE_CATEGORY_TYPE_POLYMORPH,            -- 12
 	COLLECTIBLE_CATEGORY_TYPE_SKIN,                 -- 11
 	COLLECTIBLE_CATEGORY_TYPE_PERSONALITY,          -- 9
@@ -15,28 +14,17 @@ local categories = {
 	COLLECTIBLE_CATEGORY_TYPE_HAIR,                 -- 13
 	COLLECTIBLE_CATEGORY_TYPE_FACIAL_HAIR_HORNS,    -- 14
 	COLLECTIBLE_CATEGORY_TYPE_FACIAL_ACCESSORY,     -- 15
-	-- COLLECTIBLE_CATEGORY_TYPE_PIERCING_JEWELRY,     -- 16
+	COLLECTIBLE_CATEGORY_TYPE_PIERCING_JEWELRY,     -- 16
 	COLLECTIBLE_CATEGORY_TYPE_HEAD_MARKING,         -- 17
     COLLECTIBLE_CATEGORY_TYPE_BODY_MARKING,         -- 18
+    -- pet
+	COLLECTIBLE_CATEGORY_TYPE_VANITY_PET,           -- 3
+    -- mount
+	COLLECTIBLE_CATEGORY_TYPE_MOUNT,                -- 2
     -- COLLECTIBLE_CATEGORY_TYPE_OUTFIT_STYLE          -- 24
 }
 
-local categoryIds = {
-	[COLLECTIBLE_CATEGORY_TYPE_VANITY_PET] = 3,
-	[COLLECTIBLE_CATEGORY_TYPE_COSTUME] = 2,
-	[COLLECTIBLE_CATEGORY_TYPE_MOUNT] = 4,
-	[COLLECTIBLE_CATEGORY_TYPE_POLYMORPH] = 11,
-	[COLLECTIBLE_CATEGORY_TYPE_SKIN] = 10,
-	[COLLECTIBLE_CATEGORY_TYPE_PERSONALITY] = 12,
-	[COLLECTIBLE_CATEGORY_TYPE_HAT] = 9,
-	[COLLECTIBLE_CATEGORY_TYPE_HAIR] = 14,
-	[COLLECTIBLE_CATEGORY_TYPE_FACIAL_HAIR_HORNS] = 15,
-	[COLLECTIBLE_CATEGORY_TYPE_FACIAL_ACCESSORY] = 18,
-	-- [COLLECTIBLE_CATEGORY_TYPE_PIERCING_JEWELRY] = 19,
-	[COLLECTIBLE_CATEGORY_TYPE_HEAD_MARKING] = 17,
-    [COLLECTIBLE_CATEGORY_TYPE_BODY_MARKING] = 16,
-   -- [COLLECTIBLE_CATEGORY_TYPE_OUTFIT_STYLE] = ?
-}
+
 
 --- Writes trace messages to the console
 -- fmt with %d, %s,
@@ -92,12 +80,34 @@ ASModel.SavedStyles.Defaults = {
     Styles = {}
 }
 ASModel.StyleData = {}
-ASModel.CategoryData = {}
+
+ASModel.CategoryInfo = {
+    -- appearance
+	[COLLECTIBLE_CATEGORY_TYPE_COSTUME] = {catId = 13, desc = MSG.CATEGORY_TYPE_COSTUME, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_costumes.dds"},
+	[COLLECTIBLE_CATEGORY_TYPE_POLYMORPH] = {catId = 11, desc = MSG.CATEGORY_TYPE_POLYMORPH, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_polymorphs.dds"},
+	[COLLECTIBLE_CATEGORY_TYPE_SKIN] = {catId = 10, desc = MSG.CATEGORY_TYPE_SKIN, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_skins.dds"},
+	[COLLECTIBLE_CATEGORY_TYPE_PERSONALITY] = {catId = 12, desc = MSG.CATEGORY_TYPE_PERSONALITY, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_personalities.dds"},
+	[COLLECTIBLE_CATEGORY_TYPE_HAT] = {catId = 9, desc = MSG.CATEGORY_TYPE_HAT, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_hats.dds"},
+	[COLLECTIBLE_CATEGORY_TYPE_HAIR] = {catId = 14, desc = MSG.CATEGORY_TYPE_HAIR, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_hair.dds"},
+	[COLLECTIBLE_CATEGORY_TYPE_FACIAL_HAIR_HORNS] = {catId = 15, desc = MSG.CATEGORY_TYPE_FACIAL_HAIR_HORNS, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_facialhair.dds"},
+	[COLLECTIBLE_CATEGORY_TYPE_FACIAL_ACCESSORY] = {catId = 18, desc = MSG.CATEGORY_TYPE_FACIAL_ACCESSORY, tex = "/esoui/art/treeicons/gamepad/achievement_categoryicon_champion.dds"},
+	[COLLECTIBLE_CATEGORY_TYPE_PIERCING_JEWELRY] = {catId = 19, desc = MSG.CATEGORY_TYPE_PIERCING_JEWELRY, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_facialaccessories.dds"},
+	[COLLECTIBLE_CATEGORY_TYPE_HEAD_MARKING] = {catId = 17, desc = MSG.CATEGORY_TYPE_HEAD_MARKING, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_facialmarkings.dds"},
+    [COLLECTIBLE_CATEGORY_TYPE_BODY_MARKING] = {catId = 16, desc = MSG.CATEGORY_TYPE_BODY_MARKING, tex = "/esoui/art/treeicons/gamepad/gp_collectionicon_bodymarkings.dds"},
+    -- pet (local)
+	[COLLECTIBLE_CATEGORY_TYPE_VANITY_PET] = {catId = 79, desc = MSG.CATEGORY_TYPE_VANITY_PET, tex = "/esoui/art/treeicons/gamepad/gp_store_indexicon_vanitypets.dds"},
+    -- mount (horse)
+    [COLLECTIBLE_CATEGORY_TYPE_MOUNT] = {catId = 70, desc = MSG.CATEGORY_TYPE_MOUNT, tex = "/esoui/art/treeicons/gamepad/gp_store_indexicon_mounts.dds"},
+
+   -- [COLLECTIBLE_CATEGORY_TYPE_OUTFIT_STYLE] = ?
+}
+
+
 ASModel.NO_OUTFIT_ID = -1
 ASModel.NO_TITLE_ID = -1
 
 --- Map Category_Type_ID to Name/Index
-function ASModel.InitCategoryData()
+function ASModel.ShowCategoryData()
 
     for i=1, #categories do
         trace("Index %d: %d", i, categories[i])
@@ -116,33 +126,14 @@ function ASModel.InitCategoryData()
 
                 -- toplevelindex/subCategoryIndex
 				local catId = GetCollectibleCategoryId(categoryIndex, subCategoryIndex)
+                local texture = GetCollectibleCategoryGamepadIcon(categoryIndex, subCategoryIndex)
 
-                local cd = {}
-                cd["catName"] = name
-                cd["subName"] = subCategoryName
-                cd["catIndex"] = categoryIndex
-                cd["subIndex"] = subCategoryIndex
-                cd["texture"] = GetCollectibleCategoryGamepadIcon(categoryIndex, subCategoryIndex)
-    
-                ASModel.CategoryData[catId] = cd
-
-                --trace("Name: %s/%s; catId: %d", name, subCategoryName, catId)
-
-				-- d("Cat: "..name.."/"..subCategoryName.." CatIndex: "..categoryIndex.." CatId: "..catId)
+				d("Cat: "..name.."/"..subCategoryName.." TopCatIndex: "..categoryIndex.." SubCatIndex: "..subCategoryIndex.." CatId: "..catId.." Texture: "..texture)
 			end
 		else
             local catId = GetCollectibleCategoryId(categoryIndex, nil)
             
-            local cd = {}
-            cd["catName"] = name
-            cd["catIndex"] = categoryIndex
-            cd["texture"] = GetCollectibleCategoryGamepadIcon(categoryIndex, nil)
-
-            --trace("Name: %s catId: %d", name, catId)
-
-            ASModel.CategoryData[catId] = cd
-
-			-- d("Cat: "..name.." CatIndex: "..categoryIndex.." CatId: "..catId)
+			 d("Cat: "..name.." TopCatIndex: "..categoryIndex.." CatId: "..catId)
 		end
 	end
 
@@ -153,36 +144,28 @@ function ASModel.GetCategories()
 end
 
 function ASModel.GetCatInfoByCatType (cattype)
---[[
-    local zom = ZO_CollectibleDataManager:New()
-
-    local catData = zom:GetCategoryDataById(catId)
-
-    return catData:GetName()
---]]
-
-    local catId = categoryIds[cattype]
-
-    local cd = ASModel.CategoryData[catId]
+    local cd = ASModel.CategoryInfo[cattype]
 
     if not cd then 
         return "Unknown Category: "..cattype, "esoui/art/buttons/decline_up.dds"
+    else 
+        return cd["desc"], cd["tex"]
     end
-
-    local name
-
-    if cd["subName"] then
-        name = cd["catName"].."/"..cd["subName"] 
-    else
-        name = cd["catName"]
-    end
-
-    return name, cd["texture"]
 end
 
 
 function ASModel.CheckConsistency()
-    if #ASModel.StyleData.Styles == 0 then
+    local styles = ASModel.StyleData.Styles
+
+    local i = 0
+
+    -- check if table is empty. don't use "#" because it doens't work on non-sequencial tables! 
+    for _,_ in pairs(styles) do 
+        i = 1
+        break
+    end
+
+    if i == 0 then
         ASModel.NewStyle()
     end
 end
@@ -312,7 +295,7 @@ function ASModel.StoreStyle(style)
     end
 
     -- get outfit
-    local ofid = OFMGR:GetEquippedOutfitIndex()
+    local ofid = OFMGR:GetEquippedOutfitIndex(GAMEPLAY_ACTOR_CATEGORY_PLAYER)
     if ofid then
         style.OutfitId = ofid;
     else
@@ -366,9 +349,9 @@ function ASModel.LoadStyle(style)
 
     -- set outfit
     if style.OutfitId == ASModel.NO_OUTFIT_ID then
-        UnequipOutfit()
+        OFMGR:UnequipOutfit(GAMEPLAY_ACTOR_CATEGORY_PLAYER)
     else
-        OFMGR:EquipOutfit(style.OutfitId)
+        OFMGR:EquipOutfit(GAMEPLAY_ACTOR_CATEGORY_PLAYER, style.OutfitId)
     end
 
     -- set title
@@ -442,14 +425,19 @@ function ASModel.GetStylesSorted()
 	-- a style w/o sortKey will be sorted to the end of the list 
 	local function StyleSortHelper(item1, item2)
 		local sortKey1 = item1.sortKey
-		if not sortKey1 or sortKey1 == "" then
-			sortKey1 = 'zzzzzzzzzzzzzzzzzzzzzzzz'..item1.name
-		end
+        if not sortKey1 or sortKey1 == "" then
+            -- sort items w/o keys to the end
+            sortKey1 = 'zzzzzzzzzzzzzzzzzzzzzzzz'
+        end
+        sortKey1 = sortKey1..item1.name
+		
 		
 		local sortKey2 = item2.sortKey
 		if not sortKey2 or sortKey2 == "" then
-			sortKey2 = 'zzzzzzzzzzzzzzzzzzzzzzzz'..item2.name
+            -- sort items w/o keys to the end
+			sortKey2 = 'zzzzzzzzzzzzzzzzzzzzzzzz'
 		end
+        sortKey2 = sortKey2..item2.name
 
         return (sortKey1 < sortKey2)
     end
@@ -474,5 +462,3 @@ function ASModel.GetStylesSorted()
     return styleData
 end
 
--- Initialize Data
-ASModel.InitCategoryData()

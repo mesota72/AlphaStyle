@@ -10,6 +10,8 @@ local STYLE_BG_COLOR = ZO_ColorDef:New(0, 0, 0, 0.2)
 local STYLE_BORDER_COLOR = ZO_ColorDef:New(0xFC, 0xFC, 0xFC, 0.5)
 local DUMMY_CATEGORY_COSTUME = 999
 local STILESETS_DATA = 5
+local MSG = ASLang.msg
+
 
 
 -- AlphaStyle App
@@ -18,7 +20,7 @@ ASApp = {}
 -- Meta
 ASApp.name = 'AlphaStyle'
 ASApp.displayname = 'AlphaStyle'
-ASApp.version = 'v0.0.6'
+ASApp.version = 'v1.0.0'
 ASApp.author = 'mesota'
 
 -- Update Event Queue
@@ -133,7 +135,7 @@ function ASUI.ShowTooltip(parent)
 			local SHOW_NICKNAME, SHOW_PURCHASABLE_HINT, SHOW_BLOCK_REASON = true, true, true
 			ItemTooltip:SetLink(costume.link)
 		else 
-			SetTooltipText(ItemTooltip, 'Appearance (Gear)')
+			SetTooltipText(ItemTooltip, MSG.GEAR_APPEARANCE)
 		end
 	else
 		local colId = style.Collectibles[catType]
@@ -269,7 +271,7 @@ function ASUI.UpdateStyleSetDetails()
 	
 	-- Update Outfit
 	local outfitName = "<No Outfit>"
-	local outfitManipulator = OFMGR:GetOutfitManipulator(style.OutfitId)
+	local outfitManipulator = OFMGR:GetOutfitManipulator(GAMEPLAY_ACTOR_CATEGORY_PLAYER, style.OutfitId)
 	
 	if outfitManipulator then
 		outfitName = outfitManipulator:GetOutfitName()
