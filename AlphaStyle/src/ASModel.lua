@@ -55,6 +55,8 @@ ASModel.Settings = {}
             [style id] = {
                 Name = <given name>
                 SortKey = <key to sort styles>
+                LFGRole = <role for group>
+                IgnoreRole = <true: don't set role>
                 OutfitId = <id of selected outfit>
                 TitleId = <id of selected title>
                 IgnoreTitle = <true: don't set title>
@@ -103,6 +105,7 @@ ASModel.CategoryInfo = {
 }
 
 
+ASModel.NO_LFG_ROLE = -1
 ASModel.NO_OUTFIT_ID = -1
 ASModel.NO_TITLE_ID = -1
 
@@ -294,6 +297,14 @@ function ASModel.StoreStyle(style)
         return
     end
 
+    -- get LFG role
+    local lfgRole = GetSelectedLFGRole()
+    if lfgRole then
+        style.LFGRole = lfgRole
+    else
+        style.LFGRole = ASModel.NO_LFG_ROLE
+    end
+
     -- get outfit
     local ofid = OFMGR:GetEquippedOutfitIndex(GAMEPLAY_ACTOR_CATEGORY_PLAYER)
     if ofid then
@@ -345,6 +356,14 @@ function ASModel.LoadStyle(style)
     if not style then
         d("AlphaStyle: Style not found!")
         return
+    end
+
+    -- set LFG role
+    if not style.IgnoreRole then
+        local oldRole = GetSelectedLFGRole()
+        if style.LFGRole and style.LFGRole ~= ASModel.NO_LFG_ROLE and style.LFGRole ~= oldRole and CanUpdateSelectedLFGRole() then
+            UpdateSelectedLFGRole(style.LFGRole)
+        end
     end
 
     -- set outfit

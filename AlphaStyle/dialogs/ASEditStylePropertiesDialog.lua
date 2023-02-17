@@ -16,12 +16,14 @@ function ASESPD:Commit(control)
     local editStyleName = GetControl(ctrlContent, "StyleName")
     local editStyleSortKey = GetControl(ctrlContent, "StyleSortKey")
     local checkIgnoreTitle = GetControl(ctrlContent, "IgnoreTitleCheck")
+    local checkIgnoreRole = GetControl(ctrlContent, "IgnoreRoleCheck")
 
 	local oldName = style.Name
 	
 	style.Name = editStyleName:GetText()
     style.SortKey = editStyleSortKey:GetText()
     style.IgnoreTitle =  ZO_CheckButton_IsChecked(checkIgnoreTitle)
+    style.IgnoreRole = ZO_CheckButton_IsChecked(checkIgnoreRole)
 	
 	if oldName ~= style.Name  then
 		d("Style '"..oldName.."' renamed to '"..style.Name.."'")
@@ -40,6 +42,7 @@ function ASESPD:Setup(control)
     local editStyleName = GetControl(ctrlContent, "StyleName")
     local editStyleSortKey = GetControl(ctrlContent, "StyleSortKey")
     local checkIgnoreTitle = GetControl(ctrlContent, "IgnoreTitleCheck")
+    local checkIgnoreRole = GetControl(ctrlContent, "IgnoreRoleCheck")
 
 	editStyleName:SetText(style.Name)
     editStyleSortKey:SetText(style.SortKey or '')
@@ -49,6 +52,12 @@ function ASESPD:Setup(control)
     else
         ZO_CheckButton_SetUnchecked(checkIgnoreTitle)
     end    
+    
+    if (style.IgnoreRole) then
+        ZO_CheckButton_SetChecked(checkIgnoreRole)
+    else
+        ZO_CheckButton_SetUnchecked(checkIgnoreRole)
+    end   
 end
 
 

@@ -1,7 +1,7 @@
 <GuiXml>
 	<Controls>
 		<TopLevelControl name="ASEditStylePropertiesDialog" inherits="ZO_CustomDialogBase">
-			<Dimensions x="800" y="225" />
+			<Dimensions x="800" y="300" />
 			<Anchor point="CENTER" offsetY="-45" />
 			<Controls>
 				<Control name="$(parent)Content" inherits="ZO_DialogContentAnchors">
@@ -51,6 +51,18 @@
                     		</OnClicked>
 						</Button>
 					
+                        <Label name="$(parent)IgnoreRoleLabel" font="ZoFontGame" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED" horizontalAlignment="LEFT" text="Ignore LFG role">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)IgnoreTitleLabel" relativePoint="BOTTOMLEFT" offsetY="10"/>
+							<Anchor point="TOPRIGHT" relativeTo="$(parent)IgnoreTitleLabel" relativePoint="BOTTOMRIGHT" offsetY="10"/>
+                        </Label>
+                    
+                        <Button name="$(parent)IgnoreRoleCheck" inherits="ZO_CheckButton">
+						 	<Anchor point="RIGHT" relativeTo="$(parent)IgnoreRoleLabel" relativePoint="LEFT" offsetX="-5"/>
+                    		<OnClicked>
+                        		ZO_CheckButton_OnClicked(...)
+                    		</OnClicked>
+						</Button>
+                    
 					</Controls>
 				</Control>
 				<Control name="$(parent)Cancel" inherits="ZO_CustomDialogButton" />
