@@ -266,8 +266,8 @@ function ASUI.UpdateStyleSetDetails()
 	-- Update Title
 	local titleName = "<No Title>"
 
-	if style.TitleId and style.TitleId ~= ASModel.NO_TITLE_ID then
-        titleName = GetTitle(style.TitleId)
+	if style.TitleString and style.TitleString ~= ASModel.NO_TITLE_STRING then
+        titleName = style.TitleString
 	end
 
 	if style.IgnoreTitle then
