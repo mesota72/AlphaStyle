@@ -12,7 +12,12 @@ local DUMMY_CATEGORY_COSTUME = 999
 local STILESETS_DATA = 5
 local MSG = ASLang.msg
 
-
+-- role choices
+local LFG_ROLES = {
+    [1] = "DPS",
+    [4] = "Healer",
+    [2] = "Tank",
+}
 
 -- AlphaStyle App
 ASApp = {}
@@ -203,17 +208,21 @@ function ASUI.InitStyleSetDetails()
 	titleCtrl:SetAnchor(TOPLEFT, ASUI.detailControls.styleSetDetailsControl, TOPLEFT, 5, rowOffset)
 	titleCtrl:SetAnchor(BOTTOMRIGHT, ASUI.detailControls.styleSetDetailsControl, TOPRIGHT, -5, rowOffset+30)
 
-	-- OUtfit
+	-- Outfit
 	local outfitCtrl = WM:CreateControlFromVirtual("AS_StyleSetOutfit", ASUI.detailControls.styleSetDetailsControl, 'AS_SetLabelTemplate')
 	outfitCtrl:SetAnchor(TOPLEFT, titleCtrl, BOTTOMLEFT, 0, rowOffset)
 	outfitCtrl:SetAnchor(BOTTOMRIGHT, titleCtrl, BOTTOMRIGHT, 0, rowOffset+30)
 
+    -- Role
+    local roleCtrl = WM:CreateControlFromVirtual("AS_StyleSetRole", ASUI.detailControls.styleSetDetailsControl, 'AS_SetLabelTemplate')
+	roleCtrl:SetAnchor(TOPLEFT, outfitCtrl, BOTTOMLEFT, 0, rowOffset)
+	roleCtrl:SetAnchor(BOTTOMRIGHT, outfitCtrl, BOTTOMRIGHT, 0, rowOffset+30)
 
 	-- Collectibles
 	local categories = ASModel.GetCategories()
 
 	local counter = 1
-	local prevControl = CreateStyleItemCtrl(categories[1], outfitCtrl, TOPLEFT, BOTTOMLEFT, 0, rowOffset)
+	local prevControl = CreateStyleItemCtrl(categories[1], roleCtrl, TOPLEFT, BOTTOMLEFT, 0, rowOffset)
 	local firstOfRow = prevControl
 
 	for categoryIndex = 2, #categories do
@@ -257,8 +266,8 @@ function ASUI.UpdateStyleSetDetails()
 	-- Update Title
 	local titleName = "<No Title>"
 
-	if style.TitleId and style.TitleId ~= ASModel.NO_TITLE_ID then
-        titleName = GetTitle(style.TitleId)
+	if style.TitleString and style.TitleString ~= ASModel.NO_TITLE_STRING then
+        titleName = style.TitleString
 	end
 
 	if style.IgnoreTitle then
@@ -268,7 +277,7 @@ function ASUI.UpdateStyleSetDetails()
 
 	local titleCtrl = WM:GetControlByName('AS_StyleSetTitle'):GetNamedChild('Label')
 	titleCtrl:SetText(titleName)
-	
+
 	-- Update Outfit
 	local outfitName = "<No Outfit>"
 	local outfitManipulator = OFMGR:GetOutfitManipulator(GAMEPLAY_ACTOR_CATEGORY_PLAYER, style.OutfitId)
@@ -278,7 +287,21 @@ function ASUI.UpdateStyleSetDetails()
 	end
 	local labelCtrl = WM:GetControlByName('AS_StyleSetOutfit'):GetNamedChild('Label')
 	labelCtrl:SetText(outfitName)
+	
+    -- Update LFG Role
+    local roleName = "<Not set>"
 
+	if style.LFGRole and style.LFGRole ~= ASModel.NO_LFG_ROLE then
+        roleName = LFG_ROLES[style.LFGRole]
+	end
+
+	if style.IgnoreRole then
+		roleName = roleName.." (ignored)"
+	end
+
+	local roleCtrl = WM:GetControlByName('AS_StyleSetRole'):GetNamedChild('Label')
+	roleCtrl:SetText("LFG Role: "..roleName)
+    
 	-- Update Collectibles
 	local categories = ASModel.GetCategories()
 

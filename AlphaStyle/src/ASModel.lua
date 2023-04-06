@@ -55,8 +55,10 @@ ASModel.Settings = {}
             [style id] = {
                 Name = <given name>
                 SortKey = <key to sort styles>
+                LFGRole = <role for group>
+                IgnoreRole = <true: don't set role>
                 OutfitId = <id of selected outfit>
-                TitleId = <id of selected title>
+                TitleString = <string of selected title, as id is not static>
                 IgnoreTitle = <true: don't set title>
                 Collectibles {
                     [collectible category id] = <item id>
@@ -103,8 +105,9 @@ ASModel.CategoryInfo = {
 }
 
 
+ASModel.NO_LFG_ROLE = -1
 ASModel.NO_OUTFIT_ID = -1
-ASModel.NO_TITLE_ID = -1
+ASModel.NO_TITLE_STRING = ''
 
 --- Map Category_Type_ID to Name/Index
 function ASModel.ShowCategoryData()
@@ -294,6 +297,14 @@ function ASModel.StoreStyle(style)
         return
     end
 
+    -- get LFG role
+    local lfgRole = GetSelectedLFGRole()
+    if lfgRole then
+        style.LFGRole = lfgRole
+    else
+        style.LFGRole = ASModel.NO_LFG_ROLE
+    end
+
     -- get outfit
     local ofid = OFMGR:GetEquippedOutfitIndex(GAMEPLAY_ACTOR_CATEGORY_PLAYER)
     if ofid then
@@ -305,9 +316,9 @@ function ASModel.StoreStyle(style)
     -- get title
     local titleId = GetCurrentTitleIndex()
     if titleId then
-        style.TitleId = titleId;
+        style.TitleString = GetTitle(titleId);
     else
-        style.TitleId = ASModel.NO_TITLE_ID
+        style.TitleString = ASModel.NO_TITLE_STRING
     end
 
 
@@ -347,6 +358,14 @@ function ASModel.LoadStyle(style)
         return
     end
 
+    -- set LFG role
+    if not style.IgnoreRole then
+        local oldRole = GetSelectedLFGRole()
+        if style.LFGRole and style.LFGRole ~= ASModel.NO_LFG_ROLE and style.LFGRole ~= oldRole and CanUpdateSelectedLFGRole() then
+            UpdateSelectedLFGRole(style.LFGRole)
+        end
+    end
+
     -- set outfit
     if style.OutfitId == ASModel.NO_OUTFIT_ID then
         OFMGR:UnequipOutfit(GAMEPLAY_ACTOR_CATEGORY_PLAYER)
@@ -356,10 +375,27 @@ function ASModel.LoadStyle(style)
 
     -- set title
     if not style.IgnoreTitle then
-        if not style.TitleId or style.TitleId == ASModel.NO_TITLE_ID then
+        if not style.TitleString or style.TitleString == ASModel.NO_TITLE_STRING then
             SelectTitle(nil)
         else
-            SelectTitle(style.TitleId)
+            local currentTitleID = GetCurrentTitleIndex()
+            local newTitleString = style.TitleString
+            local newTitleID = nil
+            local numTitles = GetNumTitles()
+            for titleIdx = 0, numTitles do
+                if GetTitle(titleIdx) == newTitleString then
+                    newTitleID = titleIdx
+                    break
+                end
+            end
+            if newTitleID == nil then
+                local errorMessage = "Invalid title saved, failed to load"
+                local color = "cb0000"
+                local message = zo_strformat("<<1>>: |c<<2>><<3>>|r: <<4>>", name, color, errorMessage, newTitleString)
+                d(message)
+            elseif currentTitleID ~= newTitleID then
+                SelectTitle(newTitleID)
+            end
         end
     end
 

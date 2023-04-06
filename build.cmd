@@ -1,6 +1,6 @@
 @echo off
 setlocal
-set name=AlphaStyle_1.0.0.zip
+set name=AlphaStyle_1.1.0.zip
 
 rem -----------------
 
